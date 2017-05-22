@@ -310,7 +310,7 @@ def dimpartNOR(A, i, n):
 	m = len(M)
 	R = [[0 for x in range(m)] for x in range(m)]
 	d = sum(A[i])
-	R[0][0] = d**2
+	R[0][0] = 1
 	for i in range(1, d+1):
 		R[0][i] = -1.0/(1.0*d)
 		R[i][0] = -1.0/(1.0*d)
