@@ -305,10 +305,58 @@ def dimpart(A, i, n):
 	RES = (4.0/(1.0*n))*np.array(R)
 	return RES
 
+def dimpartNOR(A, i, n):
+	M = two_ball(A,i)
+	m = len(M)
+	R = [[0 for x in range(m)] for x in range(m)]
+	d = sum(A[i])
+	R[0][0] = d**2
+	for i in range(1, d+1):
+		R[0][i] = -1.0/(1.0*d)
+		R[i][0] = -1.0/(1.0*d)
+	for i in range(1, d+1):
+		for j in range(1,d+1):
+			R[i][j] = 1.0/(1.0*d*d)
+	RES = (4.0/(1.0*n))*np.array(R)
+	return RES
+
 
 def dim_curv_calc(A, i, n):
 	M = np.array(fourGammatwo(A,i))-dimpart(A, i, n)
 	N = fourGamma(A,i)
+	ev = evs(M)
+	if ev[1] == 0 and ev[0] == 0:
+		return 0
+	if ev[0] < 0:
+		K = 0
+		t = 0
+		sig = 1
+		while sig > 0.00001:
+			while t == 0:
+				K -= sig
+				if evs(np.array(M)-K*np.array(N))[0] >= 0:
+                        		t += 1
+			K+=sig
+			t = 0
+			sig/=10.0
+		return round(K,3)
+	if ev[1] > 0:
+		K = 0
+		t = 0
+                sig = 1
+                while sig > 0.00001:
+                        while t == 0:
+                                K += sig
+                                if evs(np.array(M)-K*np.array(N))[0] < 0:
+                                        t += 1
+                        K-=sig
+                        t = 0
+                        sig/=10.0
+                return round(K-(sig*10.0),3)
+
+def dim_curv_calc_norm(A, i, n):
+	M = np.array(fourGammatwoNorm(A,i))-dimpartNOR(A, i, n)
+	N = fourGammaNorm(A,i)
 	ev = evs(M)
 	if ev[1] == 0 and ev[0] == 0:
 		return 0
@@ -428,6 +476,21 @@ class index:
 						ret["ORC"][i][j] = ocurve(i,j,AM)
 		except:
 			return user_data.callback+'(["error10"]);'
+	if t == 7:
+		try:
+			dimn  = json.loads(user_data.d)
+			if(dimn == 0):
+				return user_data.callback+'(["error8"]);'
+			elif(dimn < 0):
+				return user_data.callback+'(["error8b"]);'
+		except:
+				return user_data.callback+'(["error9"]);'
+		try:
+			ret = []
+			for j in range(len(V)):
+				ret.append(dim_curv_calc_norm(AM, j, dimn))
+		except:
+			return user_data.callback+'(["error11"]);'
 
 	#send data back
 	try:
@@ -438,3 +501,4 @@ class index:
 if __name__ == "__main__":
     app = web.application(urls, globals())
     app.run()
+
