@@ -388,16 +388,18 @@ def dim_curv_calc_norm(A, i, n):
                 return round(K-(sig*10.0),3)
 
 def ocurve(x,y,A):
-    dx = sum(A[x])
-    dy = sum(A[y])
-    return 1+scipy.optimize.OptimizeResult.values(linprog(c = eta(dx+1, dy+1), A_ub = Amat(dx+1,dy+1), b_ub = d(x,y,A), bounds = (None, None)))[3]
+	dx = sum(A[x])
+	dy = sum(A[y])
+	return 1+scipy.optimize.OptimizeResult.values(linprog(c = eta(dx+1, dy+1), A_ub = Amat(dx+1,dy+1), b_ub = d(x,y,A), bounds = (None, None)))[3]
 
 def lazocurve(x,y,A,p):
-    dx = sum(A[x])
-    dy = sum(A[y])
-    return 1+scipy.optimize.OptimizeResult.values(linprog(c = etap(dx+1, dy+1, p), A_ub = Amat(dx+1,dy+1), b_ub = d(x,y,A), bounds = (None, None)))[3]
+	dx = sum(A[x])
+	dy = sum(A[y])
+	return 1+scipy.optimize.OptimizeResult.values(linprog(c = etap(dx+1, dy+1, p), A_ub = Amat(dx+1,dy+1), b_ub = d(x,y,A), bounds = (None, None)))[3]
 
-
+def LLYcurv(x,y,A):
+	d = max([sum(A[x]),sum(A[y])])
+	return ((1.0*(d+1))/(1.0*d))*lazocurve(x,y,A,1.0/(d+1))
 
 urls = (
   '/', 'index'
@@ -491,6 +493,37 @@ class index:
 				ret.append(dim_curv_calc_norm(AM, j, dimn))
 		except:
 			return user_data.callback+'(["error11"]);'
+	if t == 8:
+		try:
+			ret = dict()
+			idlen  = json.loads(user_data.idlen)
+			ret["AM"] = AM
+			ret["ORCI"] = [[0 for i in range(len(V))] for j in range(len(V))]
+			if idlen < 0:
+				return user_data.callback+'(["error13a"]);'
+			elif idlen == 1:
+				return user_data.callback+'(["error13b"]);'
+			elif idlen > 1:
+				return user_data.callback+'(["error13c"]);'
+			for i in range(len(V)):
+				for j in range(len(V)):
+					if AM[i][j] == 1:
+						ret["ORCI"][i][j] = lazocurve(i,j,AM,idlen)
+		except:
+			return user_data.callback+'(["error12"]);'
+	
+	if t == 9:
+		try:
+			ret = dict()
+			ret["AM"] = AM
+			ret["LLYC"] = [[0 for i in range(len(V))] for j in range(len(V))]
+
+			for i in range(len(V)):
+				for j in range(len(V)):
+					if AM[i][j] == 1:
+						ret["LLYC"][i][j] = LLYcurv(i,j,AM)
+		except:
+			return user_data.callback+'(["error14"]);'
 
 	#send data back
 	try:
