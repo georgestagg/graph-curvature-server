@@ -407,7 +407,8 @@ urls = (
 web.config.debug = False
 
 class index:
-    def GET(self):
+    def POST(self):
+	web.header('Access-Control-Allow-Origin','*')
         user_data = web.input()
   #load data
 	try:
@@ -415,57 +416,57 @@ class index:
 		V  = json.loads(user_data.v)
 		t  = json.loads(user_data.t)
 	except:
-		return user_data.callback+'(["error0"]);'
+		return '["error0"]'
 
 	#do calcs
 	if t == 0:
 		try:
 			ret = range(len(V));
 		except:
-			return user_data.callback+'(["error3"]);'
+			return '["error3"]'
 	if t == 1:
 		try:
 			ret = []
 			for j in range(len(V)):
 				ret.append(curvature_sign(AM, j))
 		except:
-			return user_data.callback+'(["error1"]);'
+			return '["error1"]'
 	if t == 2:
 		try:
 			ret = []
 			for j in range(len(V)):
 				ret.append(curvature_sign_norm(AM, j))
 		except:
-			return user_data.callback+'(["error4"]);'
+			return '["error4"]'
 	if t == 3:
 		try:
 			ret = []
 			for j in range(len(V)):
 				ret.append(curv_calc(AM, j))
 		except:
-			return user_data.callback+'(["error5"]);'
+			return '["error5"]'
 	if t == 4:
 		try:
 			ret = []
 			for j in range(len(V)):
 				ret.append(curv_calc_norm(AM, j))
 		except:
-			return user_data.callback+'(["error6"]);'
+			return '["error6"]'
 	if t == 5:
 		try:
 			dimn  = json.loads(user_data.d)
 			if(dimn == 0):
-				return user_data.callback+'(["error8"]);'
+				return '["error8"]'
 			elif(dimn < 0):
-				return user_data.callback+'(["error8b"]);'
+				return '["error8b"]'
 		except:
-				return user_data.callback+'(["error9"]);'
+				return '["error9"]'
 		try:
 			ret = []
 			for j in range(len(V)):
 				ret.append(dim_curv_calc(AM, j, dimn))
 		except:
-			return user_data.callback+'(["error7"]);'
+			return '["error7"]'
 	if t == 6:
 		try:
 			ret = dict()
@@ -477,22 +478,22 @@ class index:
 					if AM[i][j] == 1:
 						ret["ORC"][i][j] = ocurve(i,j,AM)
 		except:
-			return user_data.callback+'(["error10"]);'
+			return '["error10"]'
 	if t == 7:
 		try:
 			dimn  = json.loads(user_data.d)
 			if(dimn == 0):
-				return user_data.callback+'(["error8"]);'
+				return '["error8"]'
 			elif(dimn < 0):
-				return user_data.callback+'(["error8b"]);'
+				return '["error8b"]'
 		except:
-				return user_data.callback+'(["error9"]);'
+				return '["error9"]'
 		try:
 			ret = []
 			for j in range(len(V)):
 				ret.append(dim_curv_calc_norm(AM, j, dimn))
 		except:
-			return user_data.callback+'(["error11"]);'
+			return '["error11"]'
 	if t == 8:
 		try:
 			ret = dict()
@@ -500,17 +501,17 @@ class index:
 			ret["AM"] = AM
 			ret["ORCI"] = [[0 for i in range(len(V))] for j in range(len(V))]
 			if idlen < 0:
-				return user_data.callback+'(["error13a"]);'
+				return '["error13a"]'
 			elif idlen == 1:
-				return user_data.callback+'(["error13b"]);'
+				return '["error13b"]'
 			elif idlen > 1:
-				return user_data.callback+'(["error13c"]);'
+				return '["error13c"]'
 			for i in range(len(V)):
 				for j in range(len(V)):
 					if AM[i][j] == 1:
 						ret["ORCI"][i][j] = lazocurve(i,j,AM,idlen)
 		except:
-			return user_data.callback+'(["error12"]);'
+			return '["error12"]'
 	
 	if t == 9:
 		try:
@@ -523,13 +524,13 @@ class index:
 					if AM[i][j] == 1:
 						ret["LLYC"][i][j] = LLYcurv(i,j,AM)
 		except:
-			return user_data.callback+'(["error14"]);'
+			return '["error14"]'
 
 	#send data back
 	try:
-		return user_data.callback+"("+json.dumps(ret)+");"
+		return json.dumps(ret)
 	except:
-		return user_data.callback+'(["error2"]);'
+		return '["error2"]'
 
 if __name__ == "__main__":
     app = web.application(urls, globals())
