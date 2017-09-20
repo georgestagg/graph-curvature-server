@@ -401,6 +401,18 @@ def LLYcurv(x,y,A):
 	d = max([sum(A[x]),sum(A[y])])
 	return ((1.0*(d+1))/(1.0*d))*lazocurve(x,y,A,1.0/(d+1))
 
+def etanonnorm(n,m):
+	res = [-1.0 for i in range(n+m)]
+	res[0] = -m+1
+	res[n] = -n+1
+	return res
+
+def nonnorm_ocurve(x,y,A):
+	dx = sum(A[x])
+	dy = sum(A[y])
+	return dx+dy+scipy.optimize.OptimizeResult.values(linprog(c = etanonnorm(dx+1, dy+1), A_ub = Amat(dx+1,dy+1), b_ub = d(x,y,A), bounds = (None, None)))[3]
+
+
 urls = (
   '/', 'index'
 )
@@ -526,6 +538,18 @@ class index:
 		except:
 			return '["error14"]'
 
+	if t == 10:
+		try:
+			ret = dict()
+			ret["AM"] = AM
+			ret["NNLLYC"] = [[0 for i in range(len(V))] for j in range(len(V))]
+
+			for i in range(len(V)):
+				for j in range(len(V)):
+					if AM[i][j] == 1:
+						ret["NNLLYC"][i][j] = nonnorm_ocurve(i,j,AM)
+		except:
+			return '["error15"]'
 	#send data back
 	try:
 		return json.dumps(ret)
