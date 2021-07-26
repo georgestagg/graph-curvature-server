@@ -1,13 +1,12 @@
 ### Requirements ###
-* Python 2.7
-* virtualenv for Python
+* Python 3+
 
 ### Installation Locally ###
 To install the graph calculator locally, run the following commands in order.
 * `git clone https://@mas-gitlab.ncl.ac.uk/graph-curvature/graph-curvature-webapp.git`
 * `git clone https://@mas-gitlab.ncl.ac.uk/graph-curvature/graph-curvature-server.git`
 * `cd graph-curvature-server`
-* `virtualenv -p /usr/bin/python2 graph-curvature-venv`
+* `python3 -m venv graph-curvature-venv`
 * `source graph-curvature-venv/bin/activate`
 * `pip install -r requirements.txt`
 * Start the server: `python graph.py 8090&`
@@ -20,7 +19,7 @@ Then visit `http://localhost:8000` in your browser.
 To install the graph calculator online, run the following commands:
 * `git clone https://@mas-gitlab.ncl.ac.uk/graph-curvature/graph-curvature-server.git`
 * `cd graph-curvature-server`
-* `virtualenv -p /usr/bin/python2 graph-curvature-venv`
+* `python3 -m venv graph-curvature-venv`
 * `source graph-curvature-venv/bin/activate`
 * `pip install -r requirements.txt`
 * Start the server: `python graph.py 8090&`
