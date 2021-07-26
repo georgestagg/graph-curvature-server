@@ -1,6 +1,4 @@
 import web  # type: ignore[import]
-from numpy.linalg import eigvalsh  # type: ignore[import]
-import numpy as np  # type: ignore[import]
 import json
 from scipy.optimize import linprog  # type: ignore[import]
 import scipy  # type: ignore[import]
