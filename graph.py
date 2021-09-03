@@ -119,7 +119,7 @@ class index:
 
         if t == 0:
             try:
-                ret = range(len(V))
+                ret = list(range(len(V)))
             except Exception:
                 return '["error3"]'
         if t == 1:
