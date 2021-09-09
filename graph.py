@@ -2,6 +2,7 @@ import web  # type: ignore[import]
 import json
 from scipy.optimize import linprog  # type: ignore[import]
 import scipy  # type: ignore[import]
+from scipy import optimize
 from curvature import inf, normalised_unweighted_curvature, non_normalised_unweighted_curvature  # type: ignore[import]
 
 
@@ -66,15 +67,12 @@ def d(x, y, A):
 def ocurve(x, y, A):
     dx = sum(A[x])
     dy = sum(A[y])
-    return 1+scipy.optimize.OptimizeResult.values(
-        linprog(c=eta(dx+1, dy+1), A_ub=Amat(dx+1, dy+1), b_ub=d(x, y, A), bounds=(None, None)))[3]
-
+    return 1+optimize.linprog(c=eta(dx+1, dy+1), A_ub=Amat(dx+1, dy+1), b_ub=d(x, y, A), bounds=(None, None)).fun
 
 def lazocurve(x, y, A, p):
     dx = sum(A[x])
     dy = sum(A[y])
-    return 1+scipy.optimize.OptimizeResult.values(
-        linprog(c=etap(dx+1, dy+1, p), A_ub=Amat(dx+1, dy+1), b_ub=d(x, y, A), bounds=(None, None)))[3]
+    return 1+optimize.linprog(c=etap(dx+1, dy+1, p), A_ub=Amat(dx+1, dy+1), b_ub=d(x, y, A), bounds=(None, None)).fun
 
 
 def LLYcurv(x, y, A):
@@ -92,8 +90,7 @@ def etanonnorm(n, m):
 def nonnorm_ocurve(x, y, A):
     dx = sum(A[x])
     dy = sum(A[y])
-    return dx+dy+scipy.optimize.OptimizeResult.values(
-        linprog(c=etanonnorm(dx+1, dy+1), A_ub=Amat(dx+1, dy+1), b_ub=d(x, y, A), bounds=(None, None)))[3]
+    return dx+dy+optimize.linprog(c=etanonnorm(dx+1, dy+1), A_ub=Amat(dx+1, dy+1), b_ub=d(x, y, A), bounds=(None, None)).fun
 
 
 urls = (
@@ -158,17 +155,13 @@ class index:
             except Exception:
                 return '["error7"]'
         if t == 6:
-            try:
-                ret = dict()
-                ret["AM"] = AM
-                ret["ORC"] = [[0 for i in range(len(V))] for j in range(len(V))]
-
-                for i in range(len(V)):
-                    for j in range(len(V)):
-                        if AM[i][j] == 1:
-                            ret["ORC"][i][j] = ocurve(i, j, AM)
-            except Exception:
-                return '["error10"]'
+            ret = dict()
+            ret["AM"] = AM
+            ret["ORC"] = [[0 for i in range(len(V))] for j in range(len(V))]
+            for i in range(len(V)):
+                for j in range(len(V)):
+                    if AM[i][j] == 1:
+                        ret["ORC"][i][j] = ocurve(i, j, AM)
         if t == 7:
             try:
                 dimn = json.loads(user_data.d)
@@ -227,11 +220,7 @@ class index:
                             ret["NNLLYC"][i][j] = nonnorm_ocurve(i, j, AM)
             except Exception:
                 return '["error15"]'
-
-        try:
-            return json.dumps(ret)
-        except Exception:
-            return '["error2"]'
+        return json.dumps(ret)
 
 
 if __name__ == "__main__":
