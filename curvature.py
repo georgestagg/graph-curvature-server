@@ -1,6 +1,33 @@
 import numpy as np  # type: ignore[import]
 import copy
 from numpy.linalg import eigvalsh  # type: ignore[import]
+from numpy import linalg
+
+"""
+Steinerberger Curvature
+
+Erin Law 2022
+"""
+
+def distanceMatrix(A):
+    A=np.array(A)
+    n = len(A)
+    D = A
+    An=A
+    for x in range(n):
+        An=An@A
+        for i in range(n):
+            for j in range(i+1):
+               if An[i,j]>0 and D[i,j]==0 and i!=j:
+                    D[i,j]=D[j,i]=x+2
+    return D
+ 
+def steinerbergerCurvature(A):
+    n = len(A)
+    vec = np.array([n for i in range(n)])
+    D = distanceMatrix(A)
+    Di = linalg.pinv(D)
+    return Di@vec
 
 """
 Graph curvature calculator functions, written by Ben Snodgrass.

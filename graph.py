@@ -4,6 +4,7 @@ from scipy.optimize import linprog  # type: ignore[import]
 import scipy  # type: ignore[import]
 from scipy import optimize
 from curvature import inf, normalised_unweighted_curvature, non_normalised_unweighted_curvature  # type: ignore[import]
+from curvature import steinerbergerCurvature
 
 
 def Amat(n, m):
@@ -220,6 +221,15 @@ class index:
                             ret["NNLLYC"][i][j] = nonnorm_ocurve(i, j, AM)
             except Exception:
                 return '["error15"]'
+
+        if t == 11:
+            try:
+                C = steinerbergerCurvature(AM)
+                ret = [round(C[i],3) for i in range(len(V))]
+            except Exception as e:
+                print(e)
+                return '["error16"]'
+
         return json.dumps(ret)
 
 
