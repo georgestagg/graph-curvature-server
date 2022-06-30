@@ -12,13 +12,13 @@ Erin Law 2022
 def distanceMatrix(A):
     A=np.array(A)
     n = len(A)
-    D = A
-    An=A
+    D = copy.deepcopy(A)
+    An= copy.deepcopy(A)
     for x in range(n):
-        An=An@A
+        An=A@An
         for i in range(n):
             for j in range(i+1):
-               if An[i,j]>0 and D[i,j]==0 and i!=j:
+                if An[i,j]>0 and D[i,j]==0 and i!=j:
                     D[i,j]=D[j,i]=x+2
     return D
  
@@ -26,8 +26,21 @@ def steinerbergerCurvature(A):
     n = len(A)
     vec = np.array([n for i in range(n)])
     D = distanceMatrix(A)
+    isConnected = True
+    for i in range(1, n):
+        if D[0][i]==0:
+            isConnected = False
     Di = linalg.pinv(D)
-    return Di@vec
+    curvature = Di@vec
+    if not isConnected:
+        componentSizes=[1 for i in range(n)]
+        for i in range(n):
+            for j in range(n):
+                if D[i][j] > 0:
+                    componentSizes[i] += 1
+        for i in range(n):
+            curvature[i] = (1.0*curvature[i]* componentSizes[i])/(1.0*n )
+    return curvature
 
 """
 Graph curvature calculator functions, written by Ben Snodgrass.
