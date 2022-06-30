@@ -2,6 +2,277 @@ import numpy as np  # type: ignore[import]
 import copy
 from numpy.linalg import eigvalsh  # type: ignore[import]
 from numpy import linalg
+from enum import Enum
+
+"""
+Ricci Flatness
+
+Erin Law 2022
+"""
+
+class Flatness(Enum):
+    NotRegular = 1
+    LargeDegree = 2
+    RFlat = 3
+    SFlat = 4
+    RSFlat = 5
+    RandSFlat = 6
+    Flat = 7
+    NotFlat = 8
+    
+#finds if a vertex is regular by checking if it's neighbours have the same degree
+#Note this does not check if the whole graph is regular
+def regular(A,x):
+    xnbs=[]
+    for j in range(len(A)):
+        if A[x][j]==1:
+            xnbs.append(j)
+    vertdeg=[0 for i in range(len(xnbs))]
+    vertdeg.append(sum(A[x]))
+    for i in range(len(xnbs)):
+        vertdeg[i]=sum(A[i])
+    if all(x==vertdeg[0] for x in vertdeg):
+        return True
+    return False
+
+#returns a matrix of possible values for the Ricci flatness matrix
+#given an adjacency matrix and vertex
+def ChoiceTable(A,x):
+    xnbs=[]
+    for j in range(len(A)):
+        if A[x][j]==1:
+            xnbs.append(j)
+    D = len(xnbs)
+    RFmat= []
+    Res = [ [ [] for i in range(D) ] for j in range(D) ]
+    for a in range(D):
+        for b in range(D):
+            vert=[]
+            i = xnbs[a]
+            n = xnbs[b]
+            for j in range(len(A)):
+                if A[i][j]==1 and A[n][j]==1:
+                    vert.append(j)
+            if  vert==[]:
+                RFmat.append(0)
+            else:
+                RFmat.append(vert)
+            Res[a][b] = vert
+    return Res
+ 
+#Detects whether more than one of the same single value exists in a row
+def singleValueChecker(CT):
+    N = len(CT)
+    for i in range(N):
+        singleValues = []
+        row = CT[i]
+        for j in range(N):
+            if (len(row[j]) == 1 ):
+                u = row[j][0]
+                if u in singleValues:
+                    return False
+                else:
+                    singleValues.append(u)
+    return True
+ 
+#If a single value exists in a row then remove it from all other entries in the row
+def singleValueRemover(CT):
+    N = len(CT)
+    for i in range(N):
+        singleValues = []
+        row = CT[i]
+        for j in range(N):
+            if (len(row[j]) == 1 ):
+                singleValues.append( row[j][0] )
+        for s in singleValues:
+            for j in range(N):
+                if ( len(row[j]) > 1 ):
+                    if s in row[j]:
+                        row[j].remove(s)
+    return 0
+
+#repeats removing single values until all repeats of single values are gone
+def singleValueRecursive(CT):
+    cont = True
+    while cont:
+        CTcopy = copy.deepcopy(CT)
+        singleValueRemover(CT)
+        if not singleValueChecker(CT):
+            return False
+        CT = CT.transpose()
+        singleValueRemover(CT)
+        if not singleValueChecker(CT):
+            return False
+        CT = CT.transpose()
+        if CT.all() == CTcopy.all():
+            cont = False
+    return True
+
+#checks if the grid is entirely single values
+def isSolved(CT):
+    N = len(CT)
+    for i in range(N):
+        for j in range(N):
+            if ( len(CT[i][j] ) > 1  ):
+                return False
+    return True
+    
+def isSSolved(CT):
+    N = len(CT)
+    for i in range(N):
+        for j in range(N):
+            if (len(CT[i][j])>1) or CT[i][j]!=CT[j][i]:
+                return False
+    return True
+ 
+def isRSolved(CT):
+	N = len(CT)
+	for i in range(N):
+		for j in range(N):
+			if (len(CT[i][j])>1):
+				return False
+	for i in range(N):
+		if (CT[i][i][0] != 0):
+			return False
+	return True
+
+def solve(CT):
+    #find an entry of length>1
+    rIndex, cIndex = 0,0
+    N = len(CT)
+    minSize = N
+    for i in range(N):
+        for j in range(N):
+            length = len( CT[i][j] )
+            if (length>1) and (length < minSize):
+            	minSize = length
+    ex = False
+    for i in range(N):
+        for j in range(N):
+            if (len(CT[i][j]) == minSize):
+                rIndex, cIndex = i,j
+                ex = True
+                break
+        if ex:
+            break
+    valuesToTry=copy.deepcopy(CT[rIndex][cIndex])
+    for value in valuesToTry:
+        CTcopy=copy.deepcopy(CT)
+        CTcopy[i][j]=[value]
+        if not singleValueChecker(CTcopy):
+            continue
+        if not singleValueRecursive(CTcopy):
+            continue
+        if isSolved(CTcopy):
+            return True
+        if solve(CTcopy):
+            return True
+    return False
+
+
+def Ssolve(CT):
+    #find an entry of length>1
+    rIndex, cIndex = 0,0
+    N = len(CT)
+    minSize = N
+    for i in range(N):
+        for j in range(N):
+            length = len( CT[i][j] )
+            if (length>1) and (length < minSize):
+            	minSize = length
+    ex = False
+    for i in range(N):
+        for j in range(N):
+            if (len(CT[i][j]) == minSize):
+                rIndex, cIndex = i,j
+                ex = True
+                break
+        if ex:
+            break
+    valuesToTry=copy.deepcopy(CT[rIndex][cIndex])
+    for value in valuesToTry:
+        CTcopy=copy.deepcopy(CT)
+        CTcopy[rIndex][cIndex]=[value]
+        if value not in CTcopy[cIndex][rIndex]:
+            return False
+        CTcopy[cIndex][rIndex]=[value]
+        if not singleValueChecker(CTcopy):
+            continue
+        if not singleValueRecursive(CTcopy):
+            continue
+        if isSolved(CTcopy):
+            return True
+        if Ssolve(CTcopy):
+            return True
+    return False
+
+#Check for R-Ricci flatness which means we place zeroes on the diagonals
+def RFlat(CT2):
+    CT = copy.deepcopy(CT2)
+    N = len(CT)
+    for i in range(N):
+        CT[i][i] = [0]
+    if not singleValueRecursive(CT):
+        return False
+    #At this point we need to start making choices in our graph
+    if isSolved(CT):
+        return True
+    return solve(CT)
+
+def SFlat(CT2):
+    CT = copy.deepcopy(CT2)
+    if not singleValueRecursive(CT):
+        return False
+    if isSSolved(CT):
+        return True
+    return Ssolve(CT)
+
+def RSFlat(CT2):
+    CT = copy.deepcopy(CT2)
+    N=len(CT)
+    for i in range(N):
+        for j in range(N):
+            CT[i][i]= [0]
+    if not singleValueRecursive(CT):
+        return False
+    if isSSolved(CT):
+        return True
+    return Ssolve(CT)
+ 
+#checks if a vertex is Ricci flat and if it has R/S flatness
+def RicciFlat(A,x):
+    if sum(A[x])>10:
+        return Flatness.LargeDegree
+    if not regular(A,x):
+        return Flatness.NotRegular
+    choiceTable = np.array(ChoiceTable(A,x),dtype=object)
+    if not singleValueRecursive(choiceTable):
+        return Flatness.NotFlat
+    if isSolved(choiceTable):
+        if isSSolved(choiceTable):
+        	if isRSolved(choiceTable):
+        		return Flatness.RSFlat
+        	return Flatness.SFlat
+        if isRsolved(choiceTable):
+        	return Flatness.RFlat
+        return Flatness.Flat
+    if RSFlat(choiceTable):
+        return Flatness.RSFlat
+    if RFlat(choiceTable):
+        if SFlat(choiceTable):
+            return Flatness.RandSFlat
+        return Flatness.RFlat
+    if SFlat(choiceTable):
+        return Flatness.SFlat
+    if solve(choiceTable):
+        return Flatness.Flat
+    return Flatness.NotFlat
+ 
+def RicciFlatGraph(A):
+    vec=[0 for i in range(len(A))]
+    for i in range(len(vec)):
+        vec[i]=RicciFlat(A,i)
+    return vec
 
 """
 Steinerberger Curvature
