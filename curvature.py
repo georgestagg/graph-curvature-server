@@ -144,14 +144,14 @@ def isSSolved(CT):
                 return False
     return True
  
-def isRSolved(CT):
+def isRSolved(CT, x):
 	N = len(CT)
 	for i in range(N):
 		for j in range(N):
 			if (len(CT[i][j])>1):
 				return False
 	for i in range(N):
-		if (CT[i][i][0] != 0):
+		if (CT[i][i][0] != x):
 			return False
 	return True
 
@@ -226,11 +226,11 @@ def Ssolve(CT):
     return False
 
 #Check for R-Ricci flatness which means we place zeroes on the diagonals
-def RFlat(CT2):
+def RFlat(CT2, x):
     CT = copy.deepcopy(CT2)
     N = len(CT)
     for i in range(N):
-        CT[i][i] = [0]
+        CT[i][i] = [x]
     if not singleValueRecursive(CT):
         return False
     #At this point we need to start making choices in our graph
@@ -246,12 +246,12 @@ def SFlat(CT2):
         return True
     return Ssolve(CT)
 
-def RSFlat(CT2):
+def RSFlat(CT2, x):
     CT = copy.deepcopy(CT2)
     N=len(CT)
     for i in range(N):
         for j in range(N):
-            CT[i][i]= [0]
+            CT[i][i]= [x]
     if not singleValueRecursive(CT):
         return False
     if isSSolved(CT):
@@ -269,15 +269,15 @@ def RicciFlat(A,x):
         return Flatness.NotFlat
     if isSolved(choiceTable):
         if isSSolved(choiceTable):
-        	if isRSolved(choiceTable):
+        	if isRSolved(choiceTable, x):
         		return Flatness.RSFlat
         	return Flatness.SFlat
-        if isRsolved(choiceTable):
+        if isRsolved(choiceTable, x):
         	return Flatness.RFlat
         return Flatness.Flat
-    if RSFlat(choiceTable):
+    if RSFlat(choiceTable, x):
         return Flatness.RSFlat
-    if RFlat(choiceTable):
+    if RFlat(choiceTable, x):
         if SFlat(choiceTable):
             return Flatness.RandSFlat
         return Flatness.RFlat
