@@ -19,6 +19,25 @@ class Flatness(Enum):
     RandSFlat = 6
     Flat = 7
     NotFlat = 8
+	
+def flatnessToString( type ):
+    if ( type == Flatness.NotRegular ):
+        return ""
+    if ( type == Flatness.LargeDegree ):
+        return ""
+    if ( type == Flatness.RFlat ):
+        return "R"
+    if ( type == Flatness.SFlat ):
+        return "S"
+    if ( type == Flatness.RSFlat ):
+        return "RS"
+    if ( type == Flatness.RandSFlat ):
+        return "R+S"
+    if ( type == Flatness.Flat ):
+        return "F"
+    if ( type == Flatness.NotFlat ):
+        return "X"
+    return "ERR"
     
 #finds if a vertex is regular by checking if it's neighbours have the same degree
 #Note this does not check if the whole graph is regular
@@ -271,7 +290,7 @@ def RicciFlat(A,x):
 def RicciFlatGraph(A):
     vec=[0 for i in range(len(A))]
     for i in range(len(vec)):
-        vec[i]=RicciFlat(A,i)
+        vec[i]=flatnessToString(RicciFlat(A,i))
     return vec
 
 """
