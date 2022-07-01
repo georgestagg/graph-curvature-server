@@ -4,7 +4,7 @@ from scipy.optimize import linprog  # type: ignore[import]
 import scipy  # type: ignore[import]
 from scipy import optimize
 from curvature import inf, normalised_unweighted_curvature, non_normalised_unweighted_curvature  # type: ignore[import]
-from curvature import steinerbergerCurvature
+from curvature import steinerbergerCurvature, RicciFlatGraph
 
 
 def Amat(n, m):
@@ -229,6 +229,13 @@ class index:
             except Exception as e:
                 print(e)
                 return '["error16"]'
+            
+        if t == 12:
+            try:
+                ret = RicciFlatGraph(AM)
+            except Exception as e:
+                print(e)
+                return '["error17"]'
 
         return json.dumps(ret)
 
