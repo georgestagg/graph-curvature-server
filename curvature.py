@@ -49,7 +49,7 @@ def regular(A,x):
     vertdeg=[0 for i in range(len(xnbs))]
     vertdeg.append(sum(A[x]))
     for i in range(len(xnbs)):
-        vertdeg[i]=sum(A[i])
+        vertdeg[i]=sum(A[ xnbs[i] ])
     if all(x==vertdeg[0] for x in vertdeg):
         return True
     return False
