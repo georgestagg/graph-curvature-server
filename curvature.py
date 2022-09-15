@@ -340,6 +340,69 @@ def steinerbergerCurvature(A):
     return curvature
 
 """
+Node and Link resitance curvature by Erin Law
+"""
+def laplacianMatrix(A):
+    A=np.array(A)
+    n = len(A)
+    Q = copy.deepcopy(A)
+    An= copy.deepcopy(A)
+    for x in range(n):
+        for i in range(n):
+            for j in range(i+1):
+                if An[i,j]>0 and i!=j and Q[i,j]!=0:
+                    Q[i,j]=Q[j,i]=-An[i,j]
+                if i==j:
+                   Q[i,j]=Q[j,i]=sum(An[i,])
+    return Q
+ 
+def unitVec(i,A):
+    n=len(A)
+    e=np.zeros(n)
+    e[i]=1
+    return e
+ 
+ 
+def effectiveResistance(A):
+    A=np.array(A)
+    n=len(A)
+    Q = laplacianMatrix(A)
+    Qi = linalg.pinv(Q)
+    W=[[0 for i in range(n)] for j in range(n)]
+    for i in range(n):
+        for j in range(n):
+            unit=unitVec(i,A)-unitVec(j,A)
+            unitn=copy.deepcopy(unit)
+            unitn=np.transpose(unitn)
+            W[i][j]=unitn@Qi@unit
+    return W
+ 
+def nodeResistanceCurvature(A):
+    n = len(A)
+    curvature = [0 for i in range(n)]
+    w=effectiveResistance(A)
+    for i in range(n):
+        s=0
+        for j in range(n):
+            if A[i][j]>0:
+                s+=w[i][j]*A[i][j]
+        curvature[i]=1-(0.5*s)
+    return curvature
+ 
+def linkResistanceCurvature(A):
+    n = len(A)
+    curvature = [[0 for i in range(n)]for j in range(n)]
+    w=effectiveResistance(A)
+    p=nodeResistanceCurvature(A)
+    for i in range(n):
+        for j in range(n):
+            if A[i][j]>0:
+                curvature[i][j]=2*(p[i]+p[j])/w[i][j]     
+    return curvature
+
+
+
+"""
 Graph curvature calculator functions, written by Ben Snodgrass.
 
 This code is based off formulae given in 'Bakry-Émery curvature on graphs as
