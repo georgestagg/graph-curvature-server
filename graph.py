@@ -4,7 +4,7 @@ from scipy.optimize import linprog  # type: ignore[import]
 import scipy  # type: ignore[import]
 from scipy import optimize
 from curvature import inf, normalised_unweighted_curvature, non_normalised_unweighted_curvature  # type: ignore[import]
-from curvature import steinerbergerCurvature, RicciFlatGraph
+from curvature import steinerbergerCurvature, RicciFlatGraph, nodeResistanceCurvature, linkResistanceCurvature
 
 
 def Amat(n, m):
@@ -236,8 +236,27 @@ class index:
             except Exception as e:
                 print(e)
                 return '["error17"]'
+            
+        if t == 13:
+            try:
+                C = nodeResistanceCurvature(AM)
+                ret = [round(C[i],3) for i in range(len(V))]
+            except Exception as e:
+                print(e)
+                return '["error18"]'
 
         return json.dumps(ret)
+    
+        if t == 14:
+            try:
+                LRC = linkResistanceCurvature(AM)
+                ret = [[0 for i in range(len(V))] for j in range(len(V))]
+
+                for i in range(len(V)):
+                    for j in range(len(V)):
+                        ret[i][j] = round( LRC[i][j], 3 )
+            except Exception:
+                return '["error19"]'
 
 
 if __name__ == "__main__":
