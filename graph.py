@@ -250,7 +250,9 @@ class index:
         if t == 14:
             try:
                 LRC = linkResistanceCurvature(AM)
-                ret = [[0 for i in range(len(V))] for j in range(len(V))]
+                ret = dict()
+                ret["AM"] = AM
+                ret["LRC"] = [[0 for i in range(len(V))] for j in range(len(V))]
 
                 for i in range(len(V)):
                     for j in range(len(V)):
