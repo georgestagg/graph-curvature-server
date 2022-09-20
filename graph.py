@@ -245,8 +245,6 @@ class index:
                 print(e)
                 return '["error18"]'
 
-        return json.dumps(ret)
-    
         if t == 14:
             try:
                 LRC = linkResistanceCurvature(AM)
@@ -256,9 +254,10 @@ class index:
 
                 for i in range(len(V)):
                     for j in range(len(V)):
-                        ret[i][j] = round( LRC[i][j], 3 )
+                        ret["LRC"][i][j] = round( LRC[i][j], 3 )
             except Exception:
                 return '["error19"]'
+        return json.dumps(ret)
 
 
 if __name__ == "__main__":
